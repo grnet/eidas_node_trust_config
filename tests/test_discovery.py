@@ -12,7 +12,6 @@ sys.path.append(str(Path(__file__).resolve().parent.parent))
 from eidas_node_trust_config.discovery import EdfaApiV2EidasNodeDetails, get_edfa_session, update_fp_pem_mapping
 
 class TestEdfaApiV2EidasNodeDetails(unittest.TestCase):
-    # TEST_DATA_FN_PREFIX = 'edfa_eid_node-configuration_'
     TEST_DATA_FN_PREFIX = 'edfa_api_v2_eidas-node_details_'
     TEST_ENVS = ['productionNode', 'testingNode']
     TEST_ENTITIES = ['mdsl', 'eidasService', 'eidasConnectors']
@@ -71,16 +70,10 @@ class TestEdfaApiV2EidasNodeDetails(unittest.TestCase):
         test_data = self.test_data
         def callback(entity_data, **test_params):
             filter_expired=test_params.get('filter_expired', True)
-            # cert_data = []
             cert_data = {}
             for cert in test_data[test_params['country_code']][test_params['environment']]['commonSigningCertificates']:
                 if cert[EdfaApiV2EidasNodeDetails.entity_to_common_signing_certificate_key[test_params['entity']]] and cert['expirationDays']:
-                    # cert_data.append(format_pem(cert['base64']))
-                    # cert_data.update(dict([sha256fp_pem(cert['base64'])]))
-                    # cert_data.update(dict([sha256fp_pem(cert['base64'])]))
                     update_fp_pem_mapping(cert_data, cert['base64'], filter_expired=filter_expired)
-            # cert_data.extend([format_pem(cert['base64']) for item in entity_data for cert in item['signingCertificates'] if cert['expirationDays']])
-            # cert_data.update(dict([sha256fp_pem(cert['base64']) for item in entity_data for cert in item['signingCertificates'] if cert['expirationDays']]))
             for item in entity_data:
                 for cert in item['signingCertificates']:
                     if cert['expirationDays']:

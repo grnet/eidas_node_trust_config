@@ -1,37 +1,13 @@
 import os
-# import json
-# import textwrap
-
-# from binascii import hexlify
-# from base64 import standard_b64decode
 import datetime
-
-# import yaml
 import requests
 from lxml import etree
 from xmlsec import verify as xmlsec_verify
 from xmlsec.crypto import _cert_fingerprint as xmlsec_cert_fingerprint
 from xmlsec.exceptions import XMLSigException, XMLSigAlgoKeyTypeException
-
-# from cryptography.hazmat.backends import default_backend
-# from cryptography.hazmat.primitives import serialization, hashes
 from cryptography.hazmat.primitives.serialization import Encoding as CryptoSerializationEncoding
-# from cryptography.x509 import load_pem_x509_certificate, load_der_x509_certificate
 
 # JAVAPROPS_FORMAT = '    {url};\\'
-
-# def sha256fp_pem(cert_pem):
-#     if "-----BEGIN CERTIFICATE" in cert_pem:
-#         if isinstance(cert_pem, str):
-#             cert_pem = cert_pem.encode()
-#         cert = load_pem_x509_certificate(cert_pem, backend=default_backend())
-#     else:
-#         cert = load_der_x509_certificate(standard_b64decode(cert_pem), backend=default_backend())
-
-#     fingerprint = hexlify(cert.fingerprint(hashes.SHA256())).lower().decode('ascii')
-#     # fingerprint = ":".join([fingerprint[x:x + 2] for x in xrange(0, len(fingerprint), 2)])
-    
-#     return fingerprint, cert.public_bytes(serialization.Encoding.PEM).decode('ascii')
 
 def is_cert_expired(cert):
     if hasattr(cert, 'not_valid_after_utc'):
@@ -47,13 +23,6 @@ def update_fp_pem_mapping(certificates, cert, filter_expired=True):
     # if hasattr(cert, 'public_bytes'):
     cert = cert.public_bytes(CryptoSerializationEncoding.PEM).decode('ascii')
     certificates.update({fp: cert})
-
-# def format_pem(base64_str):
-#     pem_lines = textwrap.wrap(base64_str, 64)
-#     pem_str = "-----BEGIN CERTIFICATE-----\n"
-#     pem_str += '\n'.join(pem_lines)
-#     pem_str += "\n-----END CERTIFICATE-----\n"
-#     return pem_str
 
 # def b64_slugify(s):
 #     return s.replace('/', '_').replace('+', '-')
@@ -146,10 +115,7 @@ class EdfaApiV2EidasNodeDetails:
         def append_valid_certificate(cert):
             if filter_expired and not cert['expirationDays']:
                 return
-            # certificates.append(format_pem(cert['base64']))
-            # certificates.update(dict([sha256fp_pem(cert['base64'])]))
             update_fp_pem_mapping(certificates, cert['base64'], filter_expired=filter_expired)
-        # certificates = []
         certificates = {}
         for cert in self.data[environment]['commonSigningCertificates']:
             if cert[self.entity_to_common_signing_certificate_key[entity]]:
@@ -168,19 +134,6 @@ NS = {
  'ser': 'http://eidas.europa.eu/metadata/servicelist',
  'ds': 'http://www.w3.org/2000/09/xmldsig#',
 }
-# {'md': 'urn:oasis:names:tc:SAML:2.0:metadata',
-#  'eidas': 'http://eidas.europa.eu/saml-extensions',
-#  'mdui': 'urn:oasis:names:tc:SAML:metadata:ui',
-#  'mdattr': 'urn:oasis:names:tc:SAML:metadata:attribute',
-#  'mdrpi': 'urn:oasis:names:tc:SAML:metadata:rpi',
-#  'shibmd': 'urn:mace:shibboleth:metadata:1.0',
-#  'xrd': 'http://docs.oasis-open.org/ns/xri/xrd-1.0',
-#  'pyff': 'http://pyff.io/NS',
-#  'xml': 'http://www.w3.org/XML/1998/namespace',
-#  'saml': 'urn:oasis:names:tc:SAML:2.0:assertion',
-#  'xs': 'http://www.w3.org/2001/XMLSchema',
-#  'xsi': 'http://www.w3.org/2001/XMLSchema-instance',
-#  'ti': 'https://seamlessaccess.org/NS/trustinfo'}
 
 class MetadataServiceList:
     XMLSIG_EXEMPT_COUNTRY_CODES = ['DE', 'LI']
@@ -250,7 +203,6 @@ class MetadataServiceList:
                     continue # TODO: or exception?
                 certificates = [elem.text.strip() for elem in
                                 mdloc.findall(f'{{{NS["ds"]}}}KeyInfo/{{{NS["ds"]}}}X509Data/{{{NS["ds"]}}}X509Certificate')]
-                # certificates = dict([sha256fp_pem(cert) for cert in certificates])
                 certs = {}
                 for cert in certificates:
                     update_fp_pem_mapping(certs, cert, filter_expired=filter_expired_certificates)
