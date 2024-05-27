@@ -9,7 +9,8 @@ from unittest.mock import patch, Mock
 import json
 
 sys.path.append(str(Path(__file__).resolve().parent.parent))
-from eidas_node_trust_config.discovery import EdfaApiV2EidasNodeDetails, get_edfa_session, update_fp_pem_mapping
+from eidas_node_trust_config.discovery import EdfaApiV2EidasNodeDetails, get_edfa_session
+from eidas_node_trust_config.utils import update_fp_pem_mapping
 
 class TestEdfaApiV2EidasNodeDetails(unittest.TestCase):
     TEST_DATA_FN_PREFIX = 'edfa_api_v2_eidas-node_details_'
