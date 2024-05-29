@@ -73,12 +73,15 @@ class TestEdfaApiV2EidasNodeDetails(unittest.TestCase):
             filter_expired=test_params.get('filter_expired', True)
             cert_data = {}
             for cert in test_data[test_params['country_code']][test_params['environment']]['commonSigningCertificates']:
-                if cert[EdfaApiV2EidasNodeDetails.entity_to_common_signing_certificate_key[test_params['entity']]] and cert['expirationDays']:
+                if cert[EdfaApiV2EidasNodeDetails.entity_to_common_signing_certificate_key[test_params['entity']]]:
+                    if filter_expired and not cert['expirationDays']:
+                        continue
                     update_fp_pem_mapping(cert_data, cert['base64'], filter_expired=filter_expired)
             for item in entity_data:
                 for cert in item['signingCertificates']:
-                    if cert['expirationDays']:
-                        update_fp_pem_mapping(cert_data, cert['base64'], filter_expired=filter_expired)
+                    if filter_expired and not cert['expirationDays']:
+                        continue
+                    update_fp_pem_mapping(cert_data, cert['base64'], filter_expired=filter_expired)
             return cert_data
         self.run_test('get_signing_certificates', mock_get_data, callback=callback)
 
