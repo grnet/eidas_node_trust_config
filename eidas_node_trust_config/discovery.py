@@ -32,10 +32,12 @@ class EdfaApiV2EidasNodeDetails:
         MDSL = 'mdsl'
         PS = 'eidasService'
         CONNECTORS = 'eidasConnectors'
+        MIDDLEWARES_HOSTED = 'middlewareServiceHosted'
     entity_to_common_signing_certificate_key = {
         Entity.MDSL: Entity.MDSL,
         Entity.PS: 'service',
         Entity.CONNECTORS: 'connector',
+        Entity.MIDDLEWARES_HOSTED: 'middlewareHosted',
     }
 
     def __init__(self, country_code, session=None):
@@ -55,21 +57,39 @@ class EdfaApiV2EidasNodeDetails:
     def get_country_name(self, environment=Environment.PROD):
         return self.data[environment]['country']['countryName']
 
-    def get_entity_data_as_list(self, entity, environment=Environment.PROD, only_active=True, **_):
-        if environment not in self.data:
-            raise Exception(f"Invalid environment: {environment}")
-        if only_active and self.data[environment]['status'] != 'ACTIVE':
-            return [] # TODO or exception?
-        if entity not in self.data[environment]:
-            raise Exception(f"Invalid entity: {entity}")
+    def has_middleware_service_provided(self, environment=Environment.PROD):
+        entity_data = self.get_entity_data(self.Entity.PS, environment=environment)
+        if entity_data is None:
+            return
+        return entity_data['middlewareServiceProvided'] is not None
 
-        entity_data = self.data[environment][entity]
+    def get_environment_data(self, environment, only_active=True, **_):
+        if environment not in self.data or not self.data[environment]:
+            raise Exception(f"Invalid environment: {environment}")
+        # if not self.data[environment]:
+        #     return [] # TODO or exception? or log warning?
+        if only_active and self.data[environment]['status'] != 'ACTIVE':
+            return {} # TODO or exception?
+        return self.data[environment]
+
+    def get_entity_data(self, entity, environment=Environment.PROD, only_active=True, **_):
+        environment_data = self.get_environment_data(environment, only_active=only_active)
+        if entity not in environment_data:
+            raise Exception(f"Invalid entity: {entity}")
+        return environment_data[entity]
+
+    def get_entity_data_as_list(self, entity, environment=Environment.PROD, only_active=True, mwsh_provider_country_code=None, **_):
+        entity_data = self.get_entity_data(entity, environment=environment, only_active=only_active)
         if entity_data is None:
             return []
         if not isinstance(entity_data, list): # mdsl or eidasService
             if entity == self.Entity.PS:
                 entity_data = entity_data['proxyService']
             entity_data = [entity_data]
+        if mwsh_provider_country_code is not None and entity == self.Entity.MIDDLEWARES_HOSTED:
+            for item in entity_data:
+                if item['countryProvider'] != mwsh_provider_country_code:
+                    entity_data.remove(item)
         for item in entity_data:
             if item is None or (only_active and item['status'] != 'ACTIVE'):
                 entity_data.remove(item)
@@ -90,14 +110,12 @@ class EdfaApiV2EidasNodeDetails:
         #     return '\n'.join(JAVAPROPS_FORMAT.format(url=url) for url in urls)
 
     def get_signing_certificates(self, entity, environment=Environment.PROD, filter_expired=True, **kwargs):
-        if environment not in self.data:
-            raise Exception(f"Invalid environment: {environment}")
         def append_valid_certificate(cert):
             if filter_expired and not cert['expirationDays']:
                 return
             update_fp_pem_mapping(certificates, cert['base64'], filter_expired=filter_expired)
         certificates = {}
-        for cert in self.data[environment]['commonSigningCertificates']:
+        for cert in self.get_environment_data(environment, **kwargs).get('commonSigningCertificates', []):
             if cert[self.entity_to_common_signing_certificate_key[entity]]:
                 append_valid_certificate(cert)
         for item in self.get_entity_data_as_list(entity, environment=environment, **kwargs):

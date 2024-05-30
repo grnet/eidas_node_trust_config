@@ -34,12 +34,14 @@ class EidasNodeTrustBroker:
         PROXY_SERVICE = PS
         PROXYSERVICE = PS
         CONNECTOR = EdfaApiV2EidasNodeDetails.Entity.CONNECTORS
+        MIDDLEWARE_HOSTED = EdfaApiV2EidasNodeDetails.Entity.MIDDLEWARES_HOSTED
     component_to_mdsl_endpoint_type = {
         Component.PROXY_SERVICE: MetadataServiceList.EndpointType.PROXY_SERVICE,
         Component.CONNECTOR: MetadataServiceList.EndpointType.CONNECTOR,
     }
 
-    def __init__(self, api_countries=None, manual_countries=None, mdservicelists=None, only_active=True):
+    def __init__(self, node_country_code, api_countries=None, manual_countries=None, mdservicelists=None, only_active=True):
+        self.node_country_code = node_country_code
         self.country_data = self._create_country_data(api_countries or [], manual_countries or {})
         self.mdsl_data = self._create_mdsl_data(mdservicelists or {}, only_active=only_active)
 
@@ -82,9 +84,14 @@ class EidasNodeTrustBroker:
             raise Exception(f"Unknown component: {component}")
         for country_code, data in self.country_data.items():
             if component == self.Component.PS:
+                if data.has_middleware_service_provided(environment=environment.value):
+                    ps_endpoints = self.country_data[self.node_country_code].get_metadata_urls(
+                        self.Component.MIDDLEWARE_HOSTED.value, environment=environment.value, only_active=only_active, mwsh_provider_country_code=country_code)
+                else:
+                    ps_endpoints = data.get_metadata_urls(component.value, environment=environment.value, only_active=only_active)
                 endpoints[country_code] = {
                     'country_name': data.get_country_name(environment=environment.value),
-                    'endpoints': set(data.get_metadata_urls(component.value, environment=environment.value, only_active=only_active)),
+                    'endpoints': set(ps_endpoints),
                 }
             elif component == self.Component.CONNECTOR:
                 endpoints.update(data.get_metadata_urls(component.value, environment=environment.value, only_active=only_active))
@@ -123,7 +130,11 @@ class EidasNodeTrustBroker:
         components = self.Component if component is None else [component]
         for component in components:
             for country_code, data in self.country_data.items():
-                cc_certs = data.get_signing_certificates(component.value, environment=environment.value, filter_expired=filter_expired, only_active=only_active)
+                if data.has_middleware_service_provided(environment=environment.value):
+                    cc_certs = self.country_data[self.node_country_code].get_signing_certificates(
+                        self.Component.MIDDLEWARE_HOSTED.value, environment=environment.value, filter_expired=filter_expired, only_active=only_active, mwsh_provider_country_code=country_code)
+                else:
+                    cc_certs = data.get_signing_certificates(component.value, environment=environment.value, filter_expired=filter_expired, only_active=only_active)
                 certs.update(cc_certs)
                 update_cert_fp_to_cc_mapping(cc_certs.keys(), country_code)
             for (env, _), data in self.mdsl_data.items():
