@@ -1,0 +1,242 @@
+{
+  "$schema": "https://json-schema.org/draft/2019-09/schema",
+  "$id": "urn:pypi:eidas_node_trust_config:schemas:edfaApiV2EidasNodeDetails",
+  "$defs": {
+    "countryCode": {
+      "type": "string",
+      "pattern": "^[A-Z]{2}$"
+    },
+    "status": {
+      "enum": ["ACTIVE", "INACTIVE"]
+    },
+    "url": {
+      "type": "string",
+      "format": "uri"
+    },
+    "certValidityTimestamp": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "certObject": {
+      "type": "object",
+      "properties": {
+        "base64": {
+          "type": "string",
+          "contentEncoding": "base64",
+          "contentMediaType": "application/pkix-cert"
+        },
+        "subjectShortName": { "type": "string" },
+        "subject": { "type": "string" },
+        "serialNumber": { "type": "string" },
+        "issuer": { "type": "string" },
+        "notBefore": { "$ref": "#/$defs/certValidityTimestamp" },
+        "notAfter": { "$ref": "#/$defs/certValidityTimestamp" },
+        "skiB64": {
+          "type": "string",
+          "contentEncoding": "base64"
+        },
+        "type": {
+          "enum": ["METADATA_SIGN", "TLS"]
+        },
+        "expirationAlertType": {
+          "type": "string",
+          "$comment": "FIXME add enum if we know more than this one value: NONE"
+        },
+        "expirationDays": { "type": "integer" },
+        "mdsl": { "type": "boolean" },
+        "service": { "type": "boolean" },
+        "connector": { "type": "boolean" },
+        "middlewareHosted": { "type": "boolean" }
+      }
+    },
+    "certObjectCommon": {
+      "allOf": [
+        { "$ref": "#/$defs/certObject" },
+        { "required": ["mdsl", "service", "connector", "middlewareHosted"] }
+      ]
+    },
+    "statusField": {
+      "enum": ["SUCCESS", "WARN", "ERROR", "NA"]
+    },
+    "entityLastXyzTimestampOrNull": {
+      "anyOf": [
+        { "type": "null" },
+        {
+          "type": "string",
+          "format": "date-time"
+        }
+      ]
+    },
+    "entityObject": {
+      "type": "object",
+      "properties": {
+        "id": { "type": "integer" },
+        "status": { "$ref": "#/$defs/status" },
+        "type": {
+          "enum": ["MDSL", "PROXY_SERVICE", "CONNECTOR", "MIDDLEWARE_SERVICE_HOSTED"]
+        },
+        "metadataUrl": { "$ref": "#/$defs/url" },
+        "signingCertificates": {
+          "type": "array",
+          "items": { "$ref": "#/$defs/certObject" }
+        },
+        "tlsCertificates": {
+          "type": "array",
+          "items": { "$ref": "#/$defs/certObject" }
+        },
+        "downloadStatus": { "$ref": "#/$defs/statusField" },
+        "parsingStatus": { "$ref": "#/$defs/statusField" },
+        "validationStatus": { "$ref": "#/$defs/statusField" },
+        "lastDownloadAttempt": { "$ref": "#/$defs/entityLastXyzTimestampOrNull" },
+        "lastSuccessDownload": { "$ref": "#/$defs/entityLastXyzTimestampOrNull" },
+        "lastConfigurationUpdate": { "$ref": "#/$defs/entityLastXyzTimestampOrNull" },
+        "metadataChecks": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "id": { "type": "integer" },
+              "metadataCheckLocation": {
+                "enum": ["DOWNLOAD", "PARSING"]
+              },
+              "stateStatus": { "$ref": "#/$defs/statusField" },
+              "message": { "type": "string" }
+            }
+          }
+        }
+      }
+    },
+    "middlewareServiceProvidedContactObj": {
+      "type": "object",
+      "properties": {
+        "contactTypes": {
+          "type": "array",
+          "items": { "type": "string" }
+        },
+        "companyName": { "type": "string" },
+        "emailAddresses": {
+          "type": "array",
+          "items": {
+            "type": "string",
+            "format": "email"
+          }
+        },
+        "phoneNumbers": {
+          "type": "array",
+          "items": {
+            "type": "string",
+            "format": "phone",
+            "$comment": "phone is a custom format since http://json-schema.org/draft-07/schema#"
+          }
+        }
+      }
+    },
+    "node": {
+      "type": "object",
+      "properties": {
+        "id": { "type": "integer" },
+        "status": { "$ref": "#/$defs/status" },
+        "country": {
+          "type": "object",
+          "properties": {
+            "countryCode": { "$ref": "#/$defs/countryCode" },
+            "countryName": { "type": "string" }
+          },
+          "required": ["countryCode", "countryName"]
+        },
+        "environmentType": { "enum": ["PROD", "TEST"] },
+        "commonSigningCertificates": {
+          "type": "array",
+          "items": { "$ref": "#/$defs/certObjectCommon" }
+        },
+        "commonTlsCertificates": {
+          "type": "array",
+          "items": { "$ref": "#/$defs/certObjectCommon" }
+        },
+        "environmentInformation": {
+          "type": ["string", "null"]
+        },
+        "mdsl": {
+          "anyOf": [
+            { "type": "null" },
+            { "$ref": "#/$defs/entityObject" }
+          ]
+        },
+        "eidasService": {
+          "anyOf": [
+            { "type": "null" },
+            {
+              "type": "object",
+              "oneOf": [
+                {
+                  "properties": {
+                    "proxyService": { "$ref": "#/$defs/entityObject" },
+                    "middlewareServiceProvided": { "type": "null" }
+                  }
+                },
+                {
+                  "properties": {
+                    "proxyService": { "type": "null" },
+                    "middlewareServiceProvided": {
+                      "type": "object",
+                      "properties": {
+                        "id": { "type": "integer" },
+                        "url": { "$ref": "#/$defs/url" },
+                        "description": { "type": "string" },
+                        "contacts": {
+                          "type": "array",
+                          "items": { "$ref": "#/$defs/middlewareServiceProvidedContactObj" }
+                        }
+                      }
+                    }
+                  }
+                }
+              ]
+            }
+          ]
+        },
+        "eidasConnectors": {
+          "type": "array",
+          "items": {
+            "allOf": [
+              { "$ref": "#/$defs/entityObject" },
+              {
+                "properties": {
+                  "scope": { "type": "string" }
+                },
+                "required": ["scope"]
+              }
+            ]
+          }
+        },
+        "middlewareServiceHosted": {
+          "type": "array",
+          "items": {
+            "allOf": [
+              { "$ref": "#/$defs/entityObject" },
+              {
+                "properties": {
+                  "countryProvider": { "$ref": "#/$defs/countryCode" }
+                }
+              }
+            ]
+          }
+        },
+        "changeTitle": {
+          "type": ["string", "null"],
+          "$comment": "FIXME revisit types"
+        },
+        "changeDescription": {
+          "type": ["string", "null"],
+          "$comment": "FIXME revisit types"
+        }
+      }
+    }
+  },
+  "type": "object",
+  "properties": {
+    "countryCode": { "$ref": "#/$defs/countryCode" },
+    "productionNode": { "$ref": "#/$defs/node" },
+    "testingNode": { "$ref": "#/$defs/node" }
+  }
+}
