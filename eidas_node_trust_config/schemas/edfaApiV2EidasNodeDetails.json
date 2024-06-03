@@ -47,7 +47,8 @@
         "service": { "type": "boolean" },
         "connector": { "type": "boolean" },
         "middlewareHosted": { "type": "boolean" }
-      }
+      },
+      "required": ["base64", "expirationDays"]
     },
     "certObjectCommon": {
       "allOf": [
@@ -104,7 +105,8 @@
             }
           }
         }
-      }
+      },
+      "required": ["status", "metadataUrl", "signingCertificates", "tlsCertificates"]
     },
     "middlewareServiceProvidedContactObj": {
       "type": "object",
@@ -167,6 +169,7 @@
             { "type": "null" },
             {
               "type": "object",
+              "required": ["proxyService", "middlewareServiceProvided"],
               "oneOf": [
                 {
                   "properties": {
@@ -217,7 +220,8 @@
               {
                 "properties": {
                   "countryProvider": { "$ref": "#/$defs/countryCode" }
-                }
+                },
+                "required": ["countryProvider"]
               }
             ]
           }
@@ -230,7 +234,8 @@
           "type": ["string", "null"],
           "$comment": "FIXME revisit types"
         }
-      }
+      },
+      "required": ["status", "commonSigningCertificates", "commonTlsCertificates", "mdsl", "eidasService", "eidasConnectors", "middlewareServiceHosted"]
     }
   },
   "type": "object",
@@ -238,5 +243,6 @@
     "countryCode": { "$ref": "#/$defs/countryCode" },
     "productionNode": { "$ref": "#/$defs/node" },
     "testingNode": { "$ref": "#/$defs/node" }
-  }
+  },
+  "required": ["countryCode", "productionNode", "testingNode"]
 }
