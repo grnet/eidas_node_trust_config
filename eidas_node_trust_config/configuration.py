@@ -206,14 +206,20 @@ def render_and_validate_template(template_path, data):
     with open(output_path, 'w') as f:
         f.write(rendered_template)
 
-def write_certs_to_dir(directory, fp_cert_mapping, fp_cc_mapping=None):
+def write_certs_to_dir(directory, fp_cert_mapping, file_extension, fp_cc_mapping=None):
     fp_cc_mapping = fp_cc_mapping or {}
+    if file_extension == 'pem':
+        symlink_extension = 'crt'
+    elif file_extension == 'crt':
+        symlink_extension = 'pem'
+    else:
+        raise ValueError("Unknown file extension. Please choose either 'pem' or 'crt'.")
     for fingerprint, pem in fp_cert_mapping.items():
-        file_path = os.path.join(directory, f"{fingerprint}.pem")
+        file_path = os.path.join(directory, f"{fingerprint}.{file_extension}")
         with open(file_path, 'w') as fd:
             fd.write(pem)
         for country_code in fp_cc_mapping.get(fingerprint, set()):
-            symlink_path = os.path.join(directory, f"{country_code}_{fingerprint}.crt")
+            symlink_path = os.path.join(directory, f"{country_code}_{fingerprint}.{symlink_extension}")
             if os.path.exists(symlink_path):
                 os.remove(symlink_path)
             os.symlink(os.path.basename(file_path), symlink_path)
