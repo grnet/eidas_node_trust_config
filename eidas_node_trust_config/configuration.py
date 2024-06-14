@@ -171,7 +171,12 @@ def validate_template_output(rendered_template, output_path):
             config.read_string(rendered_template)
             print("INI syntax is valid.")
         except configparser.ParsingError as e:
-            raise Exception(f"Java properties INI syntax is invalid: {e}")
+            try:
+                rendered_template = "[dummy section]\n" + rendered_template
+                config.read_string(rendered_template)
+                print("INI syntax is valid.")
+            except configparser.ParsingError as e:
+                raise Exception(f"Java properties INI syntax is invalid: {e}")
     elif file_type == 'xml':
         # dtd_url = "http://java.sun.com/dtd/properties.dtd"
         # dtd = etree.DTD(requests.get(dtd_url).text)
