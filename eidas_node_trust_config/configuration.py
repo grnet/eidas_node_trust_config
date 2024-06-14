@@ -198,7 +198,7 @@ def validate_template_output(rendered_template, output_path):
         raise Exception("Unknown file type. Please choose either 'properties' or 'xml'.")
 
 def render_and_validate_template(template_path, data):
-    env = Environment(loader=FileSystemLoader('/'))
+    env = Environment(loader=FileSystemLoader(['/', '.']), keep_trailing_newline=True)
     template = env.get_template(template_path)
     rendered_template = template.render({'data': data})
     output_path = os.path.splitext(template_path)[0]
