@@ -38,6 +38,7 @@ class EidasNodeTrustBroker:
     component_to_mdsl_endpoint_type = {
         Component.PROXY_SERVICE: MetadataServiceList.EndpointType.PROXY_SERVICE,
         Component.CONNECTOR: MetadataServiceList.EndpointType.CONNECTOR,
+        Component.MIDDLEWARE_HOSTED: False,
     }
 
     def __init__(self, node_country_code, api_countries=None, manual_countries=None, mdservicelists=None, only_active=True):
