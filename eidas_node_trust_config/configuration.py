@@ -41,10 +41,10 @@ class EidasNodeTrustBroker:
         Component.MIDDLEWARE_HOSTED: False,
     }
 
-    def __init__(self, node_country_code, api_countries=None, manual_countries=None, mdservicelists=None, only_active=True):
+    def __init__(self, node_country_code, api_countries=None, manual_countries=None, metadata_service_lists=None, **edfa_kwargs):
         self.node_country_code = node_country_code
         self.country_data = self._create_country_data(api_countries or [], manual_countries or {})
-        self.mdsl_data = self._create_mdsl_data(mdservicelists or {}, only_active=only_active)
+        self.mdsl_data = self._create_mdsl_data(metadata_service_lists or {}, **edfa_kwargs)
 
     def _create_country_data(self, api_countries, manual_countries):
         country_data = {}
