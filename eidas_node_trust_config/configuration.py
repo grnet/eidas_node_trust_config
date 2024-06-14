@@ -184,8 +184,12 @@ def validate_template_output(rendered_template, output_path):
         # with open(dtd_file_path, 'r') as dtd_fd:
         #     dtd = etree.DTD(dtd_fd)
         # dtd = etree.DTD(StringIO(JAVA_PROPERTIES_DTD))
+
         try:
-            xml = etree.XML(rendered_template)
+            try:
+                xml = etree.fromstring(rendered_template)
+            except ValueError:
+                xml = etree.fromstring(rendered_template.encode())
             assert JAVA_PROPERTIES_DTD.validate(xml)
             print("Java properties XML syntax is valid.")
         except (etree.DocumentInvalid, AssertionError) as e:
