@@ -66,9 +66,14 @@ class EidasNodeTrustBroker:
         MDSL = EdfaApiV2EidasNodeDetails.Entity.MDSL
         for country_code in self.country_data:
             for env in self.Environment:
-                mdsl_mds = self.country_data[country_code].get_signing_certificates(MDSL, environment=env.value, **edfa_kwargs)
-                for mdsl_url in self.country_data[country_code].get_metadata_urls(MDSL, environment=env.value, **edfa_kwargs):
-                    mdsl_data[(env.name, mdsl_url)] = MetadataServiceList(mdsl_url, country_code=country_code, mds=mdsl_mds.values())
+                try:
+                    mdsl_mds = self.country_data[country_code].get_signing_certificates(MDSL, environment=env.value, **edfa_kwargs)
+                    for mdsl_url in self.country_data[country_code].get_metadata_urls(MDSL, environment=env.value, **edfa_kwargs):
+                        mdsl_data[(env.name, mdsl_url)] = MetadataServiceList(mdsl_url, country_code=country_code, mds=mdsl_mds.values())
+                except Exception as e:
+                    if "Invalid environment:" in e.args[0]:
+                        continue
+                    raise
         for env in self.Environment:
             for mdsl in mdservicelists.get(env.value, []):
                 mdsl_mds = [item.get('base64') if isinstance(item, dict) else item for item in mdsl.get('signingCertificates', [])]
