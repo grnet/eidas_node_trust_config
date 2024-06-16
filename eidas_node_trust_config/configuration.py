@@ -7,14 +7,14 @@ from jinja2 import Environment, FileSystemLoader
 from lxml import etree
 from eidas_node_trust_config.discovery import get_edfa_session, EdfaApiV2EidasNodeDetails, ManualEidasNodeDetails, MetadataServiceList
 
-def country_data_merge(dict1, dict2):
+def country_data_merge(dict1, dict2, override_with_none_values=True):
     for key, value in dict2.items():
         if isinstance(value, dict):
             node = dict1.get(key, {})
             if node is None: # case eidasService.proxyService = None
                 node = {}
-            dict1[key] = country_data_merge(node, value)
-        elif value is None and key in dict1 and dict1[key] is not None:
+            dict1[key] = country_data_merge(node, value, override_with_none_values=override_with_none_values)
+        elif not override_with_none_values and value is None and key in dict1 and dict1[key] is not None:
             pass # do not override with None
         else: # lists are overridden
             dict1[key] = value
