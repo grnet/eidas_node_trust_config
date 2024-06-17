@@ -52,8 +52,9 @@ class EidasNodeTrustAggregator:
         for country_code in api_countries:
             if edfa_session is None:
                 edfa_session = get_edfa_session()
-            country = EdfaApiV2EidasNodeDetails(country_code, session=edfa_session)
-            if country_code in manual_countries:
+            country_code_in_manual_countries = country_code in manual_countries
+            country = EdfaApiV2EidasNodeDetails(country_code, session=edfa_session, schema_validate=not(country_code_in_manual_countries))
+            if country_code_in_manual_countries:
                 country = ManualEidasNodeDetails(country_code, country_data_merge(country.data, manual_countries[country_code]))
             country_data[country_code] = country
         for country_code in manual_countries:

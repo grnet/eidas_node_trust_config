@@ -3,7 +3,7 @@ import requests
 from lxml import etree
 from xmlsec import verify as xmlsec_verify
 from xmlsec.exceptions import XMLSigException, XMLSigAlgoKeyTypeException
-from eidas_node_trust_config.utils import update_fp_pem_mapping, validate_etree_with_xml_schema
+from eidas_node_trust_config.utils import update_fp_pem_mapping, validate_etree_with_xml_schema, validate_data_with_json_schema
 
 # JAVAPROPS_FORMAT = '    {url};\\'
 
@@ -23,6 +23,7 @@ def get_edfa_session():
 get_edfa_session.ENV_COOKIE = 'EDFA_API_COOKIE'
 
 class EdfaApiV2EidasNodeDetails:
+    SCHEMA_ID = 'urn:pypi:eidas_node_trust_config:schemas:edfaApiV2EidasNodeDetails'
     class Environment:
         PRODUCTION = 'productionNode'
         PROD = PRODUCTION
@@ -40,11 +41,13 @@ class EdfaApiV2EidasNodeDetails:
         Entity.MIDDLEWARES_HOSTED: 'middlewareHosted',
     }
 
-    def __init__(self, country_code, session=None):
+    def __init__(self, country_code, session=None, schema_validate=True):
         self.country_code = country_code
         self.url = f"{EDFA_API_V2_BASE_URL}/eidas-node/details/{self.country_code}"
         self.session = session or get_edfa_session()
         self.data = self.get_data()
+        if schema_validate:
+            self.validate_data()
 
     def get_data(self):
         response = self.session.get(self.url)
@@ -53,6 +56,10 @@ class EdfaApiV2EidasNodeDetails:
         if data.get('countryCode') != self.country_code:
             raise Exception(f"Response countryCode does not match: {data.get('countryCode')} != {self.country_code}")
         return data
+
+    def validate_data(self):
+        # TODO: handle errors?
+        validate_data_with_json_schema(self.data, self.SCHEMA_ID)
 
     def get_country_name(self, environment=Environment.PROD):
         return self.data[environment]['country']['countryName']
@@ -124,9 +131,11 @@ class EdfaApiV2EidasNodeDetails:
         return certificates
 
 class ManualEidasNodeDetails(EdfaApiV2EidasNodeDetails):
-    def __init__(self, country_code, data):
+    def __init__(self, country_code, data, schema_validate=True):
         self.country_code = country_code
         self.data = data
+        if schema_validate:
+            self.validate_data()
 
 NS = {
  'ser': 'http://eidas.europa.eu/metadata/servicelist',
