@@ -3,7 +3,7 @@ import requests
 from lxml import etree
 from xmlsec import verify as xmlsec_verify
 from xmlsec.exceptions import XMLSigException, XMLSigAlgoKeyTypeException
-from eidas_node_trust_config.utils import update_fp_pem_mapping
+from eidas_node_trust_config.utils import update_fp_pem_mapping, validate_etree_with_xml_schema
 
 # JAVAPROPS_FORMAT = '    {url};\\'
 
@@ -134,6 +134,7 @@ NS = {
 }
 
 class MetadataServiceList:
+    SCHEMA_ID = 'eidas-metadata-servicelist-1.0.xsd'
     XMLSIG_EXEMPT_COUNTRY_CODES = ['DE', 'LI']
     class EndpointType:
         PROXY_SERVICE = 'http://eidas.europa.eu/metadata/ept/ProxyService'
@@ -145,6 +146,7 @@ class MetadataServiceList:
         self.mds = mds
         self.xinclude = xinclude
         self.data = self.get_data()
+        self.validate()
         self.verify_signature()
 
     def get_data(self):
@@ -155,6 +157,10 @@ class MetadataServiceList:
         if self.xinclude:
             tree.xinclude()
         return tree
+
+    def validate(self):
+        # TODO: handle errors?
+        validate_etree_with_xml_schema(self.data, self.SCHEMA_ID)
 
     def verify_signature(self, country_code=None):
         if not self.mds: # None or empty list or dict_values
