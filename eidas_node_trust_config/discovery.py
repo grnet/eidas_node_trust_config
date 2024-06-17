@@ -5,8 +5,6 @@ from xmlsec import verify as xmlsec_verify
 from xmlsec.exceptions import XMLSigException, XMLSigAlgoKeyTypeException
 from eidas_node_trust_config.utils import update_fp_pem_mapping, validate_etree_with_xml_schema, validate_data_with_json_schema
 
-# JAVAPROPS_FORMAT = '    {url};\\'
-
 EDFA_API_V2_BASE_URL = 'https://eidas.ec.europa.eu/efda/api/v2'
 
 def get_edfa_session():
@@ -102,19 +100,8 @@ class EdfaApiV2EidasNodeDetails:
                 entity_data.remove(item)
         return entity_data
 
-    # def get_metadata_urls(self, entity, format=None, **kwargs):
     def get_metadata_urls(self, entity, **kwargs):
         return [item['metadataUrl'] for item in self.get_entity_data_as_list(entity, **kwargs)]
-
-        # urls = [item['metadataUrl'] for item in self.get_entity_data_as_list(entity, **kwargs)]
-        # if format is None:
-        #     return urls
-        # if format == 'json':
-        #     return json.dumps(urls)
-        # elif format == 'yaml':
-        #     return yaml.dump(urls)
-        # elif format == 'line':
-        #     return '\n'.join(JAVAPROPS_FORMAT.format(url=url) for url in urls)
 
     def get_signing_certificates(self, entity, environment=Environment.PROD, filter_expired=True, **kwargs):
         def append_valid_certificate(cert):

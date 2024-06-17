@@ -170,12 +170,10 @@ def validate_template_output(rendered_template, output_path):
         config = configparser.ConfigParser()
         try:
             config.read_string(rendered_template)
-            print("INI syntax is valid.")
         except configparser.ParsingError as e:
             try:
                 rendered_template = "[dummy section]\n" + rendered_template
                 config.read_string(rendered_template)
-                print("INI syntax is valid.")
             except configparser.ParsingError as e:
                 raise Exception(f"Java properties INI syntax is invalid: {e}")
     elif file_type == 'xml':
@@ -192,7 +190,6 @@ def validate_template_output(rendered_template, output_path):
             except ValueError:
                 xml = etree.fromstring(rendered_template.encode())
             assert JAVA_PROPERTIES_DTD.validate(xml)
-            print("Java properties XML syntax is valid.")
         except (etree.DocumentInvalid, AssertionError) as e:
             raise Exception(f"XML syntax is invalid or Java properties DTD validation failed: {e}")
     else:
