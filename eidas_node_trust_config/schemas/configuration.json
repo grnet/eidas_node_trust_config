@@ -1,0 +1,130 @@
+{
+  "$schema": "https://json-schema.org/draft/2019-09/schema",
+  "$id": "urn:pypi:eidas_node_trust_config:schemas:configuration",
+  "title": "eIDAS node trust configuration",
+  "$defs": {
+    "mdslList": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "metadataUrl": { "$ref": "edfaApiV2EidasNodeDetails#/$defs/url" },
+          "signingCertificates": {
+            "type": "array",
+            "items": {
+              "anyOf": [
+                { "$ref": "edfaApiV2EidasNodeDetails::norequired#/$defs/certObject" },
+                { "$ref": "edfaApiV2EidasNodeDetails#/$defs/certObject/properties/base64" }
+              ]
+            }
+          }
+        }
+      }
+    }
+  },
+  "type": "object",
+  "required": ["node_country_code", "environment"],
+  "properties": {
+    "node_country_code": {
+      "metavar": "CC",
+      "description": "Country code of this eIDAS node",
+      "allOf": [
+        { "$ref": "edfaApiV2EidasNodeDetails#/$defs/countryCode" }
+      ]
+    },
+    "environment": {
+      "description": "Environment of this eIDAS node",
+      "enum": ["productionNode", "testingNode"]
+    },
+    "api_countries": {
+      "metavar": "CC",
+      "description": "Country codes to fetch from the API",
+      "type": "array",
+      "items": {
+        "$ref": "edfaApiV2EidasNodeDetails#/$defs/countryCode"
+      },
+      "uniqueItems": true
+    },
+    "manual_countries": {
+      "argparse": false,
+      "description": "Country data, potentially merged with API data; mapping keyed by country code",
+      "type": "object",
+      "patternProperties": {
+        "^[A-Z]{2}$": { "$ref": "edfaApiV2EidasNodeDetails::norequired#" }
+      },
+      "additionalProperties": false
+    },
+    "metadata_service_lists": {
+      "argparse": false,
+      "description": "Metadata service lists (not country specific), each with metadataUrl and maybe signingCertificates; mapping keyed by environment (productionNode, testingNode)",
+      "type": "object",
+      "properties": {
+        "productionNode": { "$ref": "#/$defs/mdslList" },
+        "testingNode": { "$ref": "#/$defs/mdslList" }
+      },
+      "additionalProperties": false
+    },
+    "eidas_node_props": {
+      "description": "Render eIDAS node properties file templates (repeat for multiple templates)",
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "template": {
+            "metavar": "TEMPLATE",
+            "description": "Path to jinja2 template file; the output file is derived by stripping the extension from %(metavar)s",
+            "type": "string"
+          },
+          "component": {
+            "description": "Component to source data for rendering the template",
+            "enum": ["PS", "PROXY_SERVICE", "PROXYSERVICE", "CONNECTOR"],
+            "$comment": "enum must be declared here due to argparse limitations"
+          },
+          "detailed_proxyservice": {
+            "description": "Provide detailed ProxyService data to the template",
+            "type": "boolean",
+            "default": false
+          }
+        },
+        "additionalProperties": false
+      }
+    },
+    "eidas_node_mds_certs": {
+      "description": "Export eIDAS node signing certificates to a directory (repeat for multiple directories)",
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "dir": {
+            "metavar": "DIR",
+            "description": "Directory to write signing certificates (PEM files)",
+            "type": "string"
+          },
+          "component": {
+            "description": "Component to source certificate data (optional)",
+            "enum": [null, "PS", "PROXY_SERVICE", "PROXYSERVICE", "CONNECTOR"],
+            "$comment": "enum must be declared here due to argparse limitations",
+            "default": null
+          },
+          "cc_links": {
+            "description": "Create '<country_code>_<fingerprint>.crt' symbolic links to certificates",
+            "type": "boolean",
+            "default": false
+          }
+        }
+      }
+    },
+    "single_proxyservice_endpoint_per_country": {
+      "description": "Require a single ProxyService endpoint per country",
+      "type": "boolean"
+    },
+    "only_active": {
+      "description": "Only consider environments/entities in country data which have status=ACTIVE",
+      "type": "boolean"
+    },
+    "filter_expired": {
+      "description": "Filter out expired certificates",
+      "type": "boolean"
+    }
+  }
+}

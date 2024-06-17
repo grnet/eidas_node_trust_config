@@ -12,6 +12,7 @@ from jsonpointer import resolve_pointer as jsonpointer_resolve_pointer
 from lxml import etree
 from referencing import Registry, Resource
 from referencing.exceptions import NoSuchResource
+import yaml
 
 try:
     import importlib.resources as importlib_resources
@@ -262,3 +263,19 @@ def validate_data_with_json_schema(data, schema):
     # TODO: raise or return
     validator.validate(data)
     return validator.is_valid(data)
+
+def load_config_file_and_merge_with_args(config_file, config_args):
+    if config_file is None:
+        return config_args
+    if not os.path.exists(config_file):
+        raise FileNotFoundError(f"File not found: {config_file}")
+    from eidas_node_trust_config.configuration import country_data_merge as config_data_merge
+    with open(config_file, 'r') as fd:
+        config_data = yaml.safe_load(fd)
+    return config_data_merge(config_data, config_args)
+
+def write_json_schema_to_file(schema, filename):
+    # if os.path.exists(filename):
+    #     raise FileNotFoundError(f"Schema output file exists: {filename}")
+    with open(filename, 'w') as fd:
+        json.dump(get_json_schema_from_registry(schema), fd)
