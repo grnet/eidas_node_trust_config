@@ -1,0 +1,8 @@
+pyyaml
+jsonschema
+jsonpointer
+jinja2
+requests
+git+https://github.com/zmousm/pyXMLSecurity.git@87b1c2334c48bd44a22393077d874219b6675baa#egg=pyXMLSecurity
+lxml
+cryptography

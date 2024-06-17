@@ -1,0 +1,1 @@
+name = __package__
