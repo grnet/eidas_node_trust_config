@@ -175,6 +175,8 @@ def main():
         utils.write_json_schema_to_file(f"{CONFIGURATION_SCHEMA_ID}{SCHEMA_DEREFERENCE_PROC_SUFFIX}", config_schema_file)
     config_file = config_args.pop('config')
     config = utils.load_config_file_and_merge_with_args(config_file, config_args)
+    if not config:
+        return
     # print(json.dumps(config, indent=2))
     utils.validate_data_with_json_schema(config, CONFIGURATION_SCHEMA_ID)
     run_config_tasks(config)
