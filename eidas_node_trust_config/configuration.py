@@ -20,7 +20,7 @@ def country_data_merge(dict1, dict2, override_with_none_values=True):
             dict1[key] = value
     return dict1
 
-class EidasNodeTrustBroker:
+class EidasNodeTrustAggregator:
     class Environment(Enum):
         PRODUCTION = EdfaApiV2EidasNodeDetails.Environment.PRODUCTION
         PROD = PRODUCTION
