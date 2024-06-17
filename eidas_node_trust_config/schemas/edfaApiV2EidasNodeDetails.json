@@ -106,7 +106,7 @@
           }
         }
       },
-      "required": ["status", "metadataUrl", "signingCertificates", "tlsCertificates"]
+      "required": ["status", "metadataUrl", "signingCertificates"]
     },
     "middlewareServiceProvidedContactObj": {
       "type": "object",
@@ -235,7 +235,7 @@
           "$comment": "FIXME revisit types"
         }
       },
-      "required": ["status", "commonSigningCertificates", "commonTlsCertificates", "mdsl", "eidasService", "eidasConnectors", "middlewareServiceHosted"]
+      "required": ["status", "commonSigningCertificates", "mdsl", "eidasService", "eidasConnectors", "middlewareServiceHosted"]
     }
   },
   "type": "object",
@@ -244,5 +244,9 @@
     "productionNode": { "$ref": "#/$defs/node" },
     "testingNode": { "$ref": "#/$defs/node" }
   },
-  "required": ["countryCode", "productionNode", "testingNode"]
+  "required": ["countryCode"],
+  "anyOf": [
+    { "required": ["productionNode"] },
+    { "required": ["testingNode"] }
+  ]
 }
