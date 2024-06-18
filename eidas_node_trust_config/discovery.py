@@ -131,7 +131,7 @@ NS = {
 
 class MetadataServiceList:
     SCHEMA_ID = 'eidas-metadata-servicelist-1.0.xsd'
-    XMLSIG_EXEMPT_COUNTRY_CODES = ['DE', 'LI']
+    XMLSIG_EXEMPT_COUNTRY_CODES = []
     class EndpointType:
         PROXY_SERVICE = 'http://eidas.europa.eu/metadata/ept/ProxyService'
         CONNECTOR = 'http://eidas.europa.eu/metadata/ept/Connector'
