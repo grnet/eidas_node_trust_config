@@ -21,12 +21,12 @@ setup(
     description='eIDAS node trust configuration',
     author=__author__,
     url='https://github.com/grnet/eidas_node_trust_config',
-    license='EUPL-1.2',
+    license='Apache License 2.0',
     classifiers=[
         # Get strings from http://pypi.python.org/pypi?%3Aaction=list_classifiers
         'Programming Language :: Python :: 3',
         'Programming Language :: Python :: 3.12',
-        'License :: OSI Approved :: European Union Public Licence 1.2 (EUPL 1.2)',
+        'License :: OSI Approved :: Apache Software License',
         'Development Status :: 3 - Alpha',
     ],
     packages=find_packages(),
