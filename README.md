@@ -125,6 +125,32 @@ manual_countries:
           metadataUrl: https://test.example.org/EidasNode/ServiceMetadata
           signingCertificates: []
           # tlsCertificates TBA
+metadata_service_lists:
+  testingNode: # or productionNode
+    # no country binding a priori, country code derived from territory attribute
+    - metadataUrl: https://test.example.org/some-aggregate-mdservicelist.xml
+      signingCertificates:
+        # a mapping similar to country data can be provided
+        - base64:
+            "MIIBgTCCASegAwIBAgIUQGLeNW4pjT0Rq4GWIsOXPhgqL80wCgYIKoZIzj0EAwIw\
+            FjEUMBIGA1UEAwwLZXhhbXBsZS5vcmcwHhcNMjQwNjE4MTY0NjM0WhcNMzQwNjE2\
+            MTY0NjM0WjAWMRQwEgYDVQQDDAtleGFtcGxlLm9yZzBZMBMGByqGSM49AgEGCCqG\
+            SM49AwEHA0IABPD4Prk6CFMRi37spJ0oEvt6FKSs26IPO2/BJ7kNkD6OXeAf1drh\
+            bfT6HNBN01E+Vwv31n+7FwARV9V2JbapX7mjUzBRMB0GA1UdDgQWBBT9YGdBu19O\
+            sXMqzhcIcoSnSxsOUjAfBgNVHSMEGDAWgBT9YGdBu19OsXMqzhcIcoSnSxsOUjAP\
+            BgNVHRMBAf8EBTADAQH/MAoGCCqGSM49BAMCA0gAMEUCIQCt8HPmYZywCWiVEVvB\
+            msDMBZvtFvQAvCJVcIRa/9o3agIgQaJcfoc0KUTZ/QX/OZ/gfD5nUnH4QYI6WHC3\
+            fkHAP/I="
+        # or just the certificate
+        - "MIIBgTCCASegAwIBAgIUQGLeNW4pjT0Rq4GWIsOXPhgqL80wCgYIKoZIzj0EAwIw\
+          FjEUMBIGA1UEAwwLZXhhbXBsZS5vcmcwHhcNMjQwNjE4MTY0NjM0WhcNMzQwNjE2\
+          MTY0NjM0WjAWMRQwEgYDVQQDDAtleGFtcGxlLm9yZzBZMBMGByqGSM49AgEGCCqG\
+          SM49AwEHA0IABPD4Prk6CFMRi37spJ0oEvt6FKSs26IPO2/BJ7kNkD6OXeAf1drh\
+          bfT6HNBN01E+Vwv31n+7FwARV9V2JbapX7mjUzBRMB0GA1UdDgQWBBT9YGdBu19O\
+          sXMqzhcIcoSnSxsOUjAfBgNVHSMEGDAWgBT9YGdBu19OsXMqzhcIcoSnSxsOUjAP\
+          BgNVHRMBAf8EBTADAQH/MAoGCCqGSM49BAMCA0gAMEUCIQCt8HPmYZywCWiVEVvB\
+          msDMBZvtFvQAvCJVcIRa/9o3agIgQaJcfoc0KUTZ/QX/OZ/gfD5nUnH4QYI6WHC3\
+          fkHAP/I="
 # configuration tasks
 eidas_node_props:
   - template: config/eidas.xml.j2
