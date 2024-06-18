@@ -1,4 +1,4 @@
-# eidas_node_trust_config
+# eIDAS node trust configuration
 
 Aggregate trust data (metadata endpoints and certificates) for configuring eIDAS node from the [eIDAS dashboard](https://eidas.ec.europa.eu/efda/browse/notification/eid-chapter-contacts), Metadata Service Lists (MDSL) and manual configuration.
 
@@ -10,7 +10,7 @@ To install the package, run the following command:
 pip install git+https://github.com/grnet/eidas_node_trust_config.git
 ```
 
-Some required changes to dependency [pyXMLSecurity](https://github.com/IdentityPython/pyXMLSecurity/) need to be resolved upstream before this package can be published to PyPi. Until that happens the dependency points to a patched fork of this library; you may install from this repository.
+Some required changes to dependency [pyXMLSecurity](https://github.com/IdentityPython/pyXMLSecurity/) need to be resolved upstream before this package can be published to PyPi. Until that happens the dependency points to a patched fork of this library; you may install the package from this repository.
 
 ## Usage
 
@@ -64,11 +64,84 @@ eidas_node_mds_certs:
                         Create '<country_code>_<fingerprint>.crt' symbolic links to certificates
 ```
 
-You can use command line arguments or a (YAML) configuration file. Some options may only be provided in the latter.
+Command line arguments override options provided in the YAML configuration file, with the exception of `manual_countries` and `metadata_service_lists` which are exclusive to the latter.
 
-A sample configuration file may be added is provided (TBA).
+### Configuration file example
 
-You can export a JSON schema to use for validation and auto-completion of your configuration file with `--write-config-schema` in your editor.
+```yaml
+$schema: "urn:pypi:eidas_node_trust_config:schemas:configuration" # optional
+node_country_code: CC
+environment: testingNode # or productionNode
+api_countries:
+  - CC
+  - CA
+  - CB
+  # ...
+manual_countries:
+  # it is possible to only provide some keys to override country data from the API
+  # unlike merging for objects, providing an array completely overrides the API data
+  CC:
+    testingNode:
+      eidasService:
+        proxyService:
+          status: INACTIVE
+  # example of a complete declaration (not merged with API data)
+  CD:
+    countryCode: CD
+    testingNode:
+      status: ACTIVE
+      country:
+        countryCode: CD
+        countryName: CD country
+      commonSigningCertificates:
+        - base64:
+            "MIIBgTCCASegAwIBAgIUQGLeNW4pjT0Rq4GWIsOXPhgqL80wCgYIKoZIzj0EAwIw\
+            FjEUMBIGA1UEAwwLZXhhbXBsZS5vcmcwHhcNMjQwNjE4MTY0NjM0WhcNMzQwNjE2\
+            MTY0NjM0WjAWMRQwEgYDVQQDDAtleGFtcGxlLm9yZzBZMBMGByqGSM49AgEGCCqG\
+            SM49AwEHA0IABPD4Prk6CFMRi37spJ0oEvt6FKSs26IPO2/BJ7kNkD6OXeAf1drh\
+            bfT6HNBN01E+Vwv31n+7FwARV9V2JbapX7mjUzBRMB0GA1UdDgQWBBT9YGdBu19O\
+            sXMqzhcIcoSnSxsOUjAfBgNVHSMEGDAWgBT9YGdBu19OsXMqzhcIcoSnSxsOUjAP\
+            BgNVHRMBAf8EBTADAQH/MAoGCCqGSM49BAMCA0gAMEUCIQCt8HPmYZywCWiVEVvB\
+            msDMBZvtFvQAvCJVcIRa/9o3agIgQaJcfoc0KUTZ/QX/OZ/gfD5nUnH4QYI6WHC3\
+            fkHAP/I="
+          expirationDays: 1234
+          mdsl: false
+          service: true
+          connector: true
+          middlewareHosted: false
+      # commonTlsCertificates TBA
+      mdsl: null
+      eidasConnectors:
+        - status: ACTIVE
+          metadataUrl: https://test.example.org/EidasNode/ConnectorMetadata
+          signingCertificates: []
+          # tlsCertificates TBA
+          scope: public
+      middlewareServiceHosted: []
+      eidasService:
+        middlewareServiceProvided: null
+        proxyService:
+          status: ACTIVE
+          metadataUrl: https://test.example.org/EidasNode/ServiceMetadata
+          signingCertificates: []
+          # tlsCertificates TBA
+# configuration tasks
+eidas_node_props:
+  - template: config/eidas.xml.j2
+    component: PS
+    detailed_proxyservice: true
+  - template: config/metadata/MetadataFetcher_Connector.properties.j2
+    component: PS
+    detailed_proxyservice: false
+  # ...
+eidas_node_mds_certs:
+  - dir: config/metadata-certs
+    component: null
+    cc_links: false
+single_proxyservice_endpoint_per_country: false # if no proxyservice is provided for a country, this global option must be disabled
+```
+
+You can use `--write-config-schema` to export a JSON schema for configuration file validation and auto-completion in your editor.
 
 ## Modules
 
