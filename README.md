@@ -187,8 +187,6 @@ Template excerpt example for `eidas.xml` (with `detailed_proxyservice: true`):
 {% endfor %}
 ```
 
-## Modules
-
 ## Python API
 
 TBA
