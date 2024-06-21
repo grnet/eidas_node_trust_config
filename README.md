@@ -169,6 +169,10 @@ single_proxyservice_endpoint_per_country: false # if no proxyservice is provided
 
 You can use `--write-config-schema` to export a JSON schema for configuration file validation and auto-completion in your editor.
 
+### eIDAS dashboard API authentication
+
+`eidas_node_trust_config` looks for `EDFA_API_COOKIE` in its' environment; the value must be like `COOKIE_NAME=COOKIE_VALUE`. This cookie is set in requests to eIDAS dashboard API endpoint. Sending a valid (time-limited) `JSESSIONID` cookie is currently the only known working authentication method.
+
 ### Template rendering
 A single `data` parameter is given as context for rendering the Jinja template provided for an eIDAS node properties (`eidas_node_props`) configuration task. This is either an iterable (set) with metadata endpoints or a dictionary keyed by country code, if `detailed_proxyservice` is enabled. The rendered template is syntax checked as either INI-style Java properties or XML conforming to the Java properties DTD, depending on a `.properties` or `.xml` suffix, respectively, in the output filename; the latter is derived from the template filename after removing the j2 extension. No other format or suffix is supported.
 
