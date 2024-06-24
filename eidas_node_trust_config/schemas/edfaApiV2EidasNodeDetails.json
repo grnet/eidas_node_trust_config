@@ -98,7 +98,7 @@
             "properties": {
               "id": { "type": "integer" },
               "metadataCheckLocation": {
-                "enum": ["DOWNLOAD", "PARSING"]
+                "enum": ["DOWNLOAD", "PARSING", "VALIDATION"]
               },
               "stateStatus": { "$ref": "#/$defs/statusField" },
               "message": { "type": "string" }
