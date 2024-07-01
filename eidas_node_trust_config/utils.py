@@ -269,7 +269,8 @@ def load_config_file_and_merge_with_args(config_file, config_args):
         return config_args
     if not os.path.exists(config_file):
         raise FileNotFoundError(f"File not found: {config_file}")
-    from eidas_node_trust_config.configuration import country_data_merge as config_data_merge
+    from eidas_node_trust_config.configuration import country_data_merge as config_data_merge, MergeableList
+    yaml.SafeLoader.add_constructor('!seq_merge', lambda loader, node: MergeableList(loader.construct_sequence(node, deep=loader.deep_construct)))
     with open(config_file, 'r') as fd:
         config_data = yaml.safe_load(fd)
     return config_data_merge(config_data, config_args)

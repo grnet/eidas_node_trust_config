@@ -7,6 +7,9 @@ from jinja2 import Environment, FileSystemLoader
 from lxml import etree
 from eidas_node_trust_config.discovery import get_edfa_session, EdfaApiV2EidasNodeDetails, ManualEidasNodeDetails, MetadataServiceList
 
+class MergeableList(list):
+    pass
+
 def country_data_merge(dict1, dict2, override_with_none_values=True):
     for key, value in dict2.items():
         if isinstance(value, dict):
@@ -16,7 +19,14 @@ def country_data_merge(dict1, dict2, override_with_none_values=True):
             dict1[key] = country_data_merge(node, value, override_with_none_values=override_with_none_values)
         elif not override_with_none_values and value is None and key in dict1 and dict1[key] is not None:
             pass # do not override with None
-        else: # lists are overridden
+        elif (isinstance(value, MergeableList) and key in dict1 and isinstance(dict1[key], list)) or \
+            (isinstance(value, list) and key in dict1 and isinstance(dict1[key], MergeableList)):
+            for item in value:
+                if item not in dict1[key]:
+                    dict1[key].append(item)
+            if not isinstance(dict1[key], MergeableList):
+                dict1[key] = MergeableList(dict1[key])
+        else: # lists without !seq_merge tag are overridden
             dict1[key] = value
     return dict1
 
