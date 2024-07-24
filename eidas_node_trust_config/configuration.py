@@ -147,7 +147,7 @@ class EidasNodeTrustAggregator:
         components = self.Component if component is None else [component]
         for component in components:
             for country_code, data in self.country_data.items():
-                if data.has_middleware_service_provided(environment=environment.value):
+                if component == self.Component.PS and data.has_middleware_service_provided(environment=environment.value):
                     cc_certs = self.country_data[self.node_country_code].get_signing_certificates(
                         self.Component.MIDDLEWARE_HOSTED.value, environment=environment.value, filter_expired=filter_expired, only_active=only_active, mwsh_provider_country_code=country_code)
                 else:
