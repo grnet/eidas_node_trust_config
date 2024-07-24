@@ -144,7 +144,11 @@ class EidasNodeTrustAggregator:
         def update_cert_fp_to_cc_mapping(cert_fps, country_code):
             for cert_fp in cert_fps:
                 cert_fp_to_cc_mapping[cert_fp].add(country_code)
-        components = self.Component if component is None else [component]
+        if component is None:
+            # hosted middlewares are looked up through the PS component of the providing country
+            components = [c for c in self.Component if c is not self.Component.MIDDLEWARE_HOSTED]
+        else:
+            components = [component]
         for component in components:
             for country_code, data in self.country_data.items():
                 if component == self.Component.PS and data.has_middleware_service_provided(environment=environment.value):
