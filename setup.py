@@ -10,7 +10,7 @@ install_requires = [
     'jsonpointer',
     'jinja2',
     'requests',
-    'pyXMLSecurity @ git+https://github.com/zmousm/pyXMLSecurity.git@87b1c2334c48bd44a22393077d874219b6675baa#egg=pyXMLSecurity',
+    'pyXMLSecurity @ git+https://github.com/zmousm/pyXMLSecurity.git@2d699ea0d18b80b37433b57672c70e81dd5042fc#egg=pyXMLSecurity',
     'lxml',
     'cryptography'
 ]
