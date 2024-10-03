@@ -209,6 +209,7 @@ def dereference_refs(item, orig_schema=None, **_):
         return False, item
     ref, ptr = urldefrag(item['$ref'])
     if ref:
+        ref = item['$ref'][:len(ref)] # guard against urlparse case normalization
         ref = get_json_schema_from_registry(ref)
         traverse_schema(ref, dereference_refs)
     if ptr:
