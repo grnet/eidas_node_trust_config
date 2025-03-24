@@ -134,108 +134,113 @@
       }
     },
     "node": {
-      "type": "object",
-      "properties": {
-        "id": { "type": "integer" },
-        "status": { "$ref": "#/$defs/status" },
-        "country": {
+      "anyOf": [
+        { "type": "null" },
+        {
           "type": "object",
           "properties": {
-            "countryCode": { "$ref": "#/$defs/countryCode" },
-            "countryName": { "type": "string" }
-          },
-          "required": ["countryCode", "countryName"]
-        },
-        "environmentType": { "enum": ["PROD", "TEST"] },
-        "commonSigningCertificates": {
-          "type": "array",
-          "items": { "$ref": "#/$defs/certObjectCommon" }
-        },
-        "commonTlsCertificates": {
-          "type": "array",
-          "items": { "$ref": "#/$defs/certObjectCommon" }
-        },
-        "environmentInformation": {
-          "type": ["string", "null"]
-        },
-        "mdsl": {
-          "anyOf": [
-            { "type": "null" },
-            { "$ref": "#/$defs/entityObject" }
-          ]
-        },
-        "eidasService": {
-          "anyOf": [
-            { "type": "null" },
-            {
+            "id": { "type": "integer" },
+            "status": { "$ref": "#/$defs/status" },
+            "country": {
               "type": "object",
-              "required": ["proxyService", "middlewareServiceProvided"],
-              "oneOf": [
+              "properties": {
+                "countryCode": { "$ref": "#/$defs/countryCode" },
+                "countryName": { "type": "string" }
+              },
+              "required": ["countryCode", "countryName"]
+            },
+            "environmentType": { "enum": ["PROD", "TEST"] },
+            "commonSigningCertificates": {
+              "type": "array",
+              "items": { "$ref": "#/$defs/certObjectCommon" }
+            },
+            "commonTlsCertificates": {
+              "type": "array",
+              "items": { "$ref": "#/$defs/certObjectCommon" }
+            },
+            "environmentInformation": {
+              "type": ["string", "null"]
+            },
+            "mdsl": {
+              "anyOf": [
+                { "type": "null" },
+                { "$ref": "#/$defs/entityObject" }
+              ]
+            },
+            "eidasService": {
+              "anyOf": [
+                { "type": "null" },
                 {
-                  "properties": {
-                    "proxyService": { "$ref": "#/$defs/entityObject" },
-                    "middlewareServiceProvided": { "type": "null" }
-                  }
-                },
-                {
-                  "properties": {
-                    "proxyService": { "type": "null" },
-                    "middlewareServiceProvided": {
-                      "type": "object",
+                  "type": "object",
+                  "required": ["proxyService", "middlewareServiceProvided"],
+                  "oneOf": [
+                    {
                       "properties": {
-                        "id": { "type": "integer" },
-                        "url": { "$ref": "#/$defs/url" },
-                        "description": { "type": "string" },
-                        "contacts": {
-                          "type": "array",
-                          "items": { "$ref": "#/$defs/middlewareServiceProvidedContactObj" }
+                        "proxyService": { "$ref": "#/$defs/entityObject" },
+                        "middlewareServiceProvided": { "type": "null" }
+                      }
+                    },
+                    {
+                      "properties": {
+                        "proxyService": { "type": "null" },
+                        "middlewareServiceProvided": {
+                          "type": "object",
+                          "properties": {
+                            "id": { "type": "integer" },
+                            "url": { "$ref": "#/$defs/url" },
+                            "description": { "type": "string" },
+                            "contacts": {
+                              "type": "array",
+                              "items": { "$ref": "#/$defs/middlewareServiceProvidedContactObj" }
+                            }
+                          }
                         }
                       }
                     }
-                  }
+                  ]
                 }
               ]
+            },
+            "eidasConnectors": {
+              "type": "array",
+              "items": {
+                "allOf": [
+                  { "$ref": "#/$defs/entityObject" },
+                  {
+                    "properties": {
+                      "scope": { "type": "string" }
+                    },
+                    "required": ["scope"]
+                  }
+                ]
+              }
+            },
+            "middlewareServiceHosted": {
+              "type": "array",
+              "items": {
+                "allOf": [
+                  { "$ref": "#/$defs/entityObject" },
+                  {
+                    "properties": {
+                      "countryProvider": { "$ref": "#/$defs/countryCode" }
+                    },
+                    "required": ["countryProvider"]
+                  }
+                ]
+              }
+            },
+            "changeTitle": {
+              "type": ["string", "null"],
+              "$comment": "FIXME revisit types"
+            },
+            "changeDescription": {
+              "type": ["string", "null"],
+              "$comment": "FIXME revisit types"
             }
-          ]
-        },
-        "eidasConnectors": {
-          "type": "array",
-          "items": {
-            "allOf": [
-              { "$ref": "#/$defs/entityObject" },
-              {
-                "properties": {
-                  "scope": { "type": "string" }
-                },
-                "required": ["scope"]
-              }
-            ]
-          }
-        },
-        "middlewareServiceHosted": {
-          "type": "array",
-          "items": {
-            "allOf": [
-              { "$ref": "#/$defs/entityObject" },
-              {
-                "properties": {
-                  "countryProvider": { "$ref": "#/$defs/countryCode" }
-                },
-                "required": ["countryProvider"]
-              }
-            ]
-          }
-        },
-        "changeTitle": {
-          "type": ["string", "null"],
-          "$comment": "FIXME revisit types"
-        },
-        "changeDescription": {
-          "type": ["string", "null"],
-          "$comment": "FIXME revisit types"
+          },
+          "required": ["status", "commonSigningCertificates", "mdsl", "eidasService", "eidasConnectors", "middlewareServiceHosted"]
         }
-      },
-      "required": ["status", "commonSigningCertificates", "mdsl", "eidasService", "eidasConnectors", "middlewareServiceHosted"]
+      ]
     }
   },
   "type": "object",
