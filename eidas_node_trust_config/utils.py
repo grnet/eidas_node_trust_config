@@ -1,6 +1,7 @@
 import os
 import datetime
 import json
+from io import BytesIO
 from binascii import hexlify
 from pathlib import Path
 from urllib.parse import urldefrag
@@ -113,11 +114,12 @@ class ResourceCacheResolver(etree.Resolver):
         _resource_cache (ResourceCache): An instance of the ResourceCache class used for fetching and caching package resources.
     """
 
-    def __init__(self):
+    def __init__(self, return_bytes=False):
         self._resource_cache = ResourceCache()
+        self._return_bytes = return_bytes
         super().__init__()
 
-    def resolve(self, system_url, _, context):
+    def resolve(self, system_url, _, context, *args, **kwargs):
         """
         Resolves the given system URL and returns the resolved XML as a string.
 
@@ -126,7 +128,7 @@ class ResourceCacheResolver(etree.Resolver):
 
         Args:
             system_url (str): The system URL to resolve.
-            public_id: The public ID associated with the system URL.
+            _: The public ID associated with the system URL.
             context: The context object.
             *args: Additional positional arguments.
             **kwargs: Additional keyword arguments.
@@ -141,15 +143,17 @@ class ResourceCacheResolver(etree.Resolver):
             return
         if not system_url.startswith('schemas/'):
             system_url = f"schemas/{system_url}"
-        res = self._resource_cache.get_package_resource_as_text(system_url)
+        res = self._resource_cache.get_package_resource_as_bytes(system_url) if self._return_bytes \
+            else self._resource_cache.get_package_resource_as_text(system_url)
         if res:
-            return self.resolve_string(res, context)
+            return self.resolve_file(BytesIO(res), context, **kwargs) if self._return_bytes \
+            else self.resolve_string(res, context, **kwargs)
 
 def validate_etree_with_xml_schema(data, schema):
     if not schema.startswith('schemas/'):
         schema = f"schemas/{schema}"
     parser = etree.XMLParser()
-    parser.resolvers.add(ResourceCacheResolver())
+    parser.resolvers.add(ResourceCacheResolver(return_bytes=True))
     schema = etree.fromstring(ResourceCache().get_package_resource_as_bytes(schema), parser=parser)
     xsd = etree.XMLSchema(schema)
     # TODO: raise or return
