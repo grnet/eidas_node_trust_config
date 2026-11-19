@@ -13,7 +13,7 @@
             "type": "array",
             "items": {
               "anyOf": [
-                { "$ref": "edfaApiV2EidasNodeDetails::norequired#/$defs/certObject" },
+                { "$ref": "urn:pypi:eidas_node_trust_config:schemas:edfaApiV2EidasNodeDetails::norequired#/$defs/certObject" },
                 { "$ref": "edfaApiV2EidasNodeDetails#/$defs/certObject/properties/base64" }
               ]
             }
@@ -50,7 +50,7 @@
       "description": "Country data, potentially merged with API data; mapping keyed by country code",
       "type": "object",
       "patternProperties": {
-        "^[A-Z]{2}$": { "$ref": "edfaApiV2EidasNodeDetails::norequired#" }
+        "^[A-Z]{2}$": { "$ref": "urn:pypi:eidas_node_trust_config:schemas:edfaApiV2EidasNodeDetails::norequired#" }
       },
       "additionalProperties": false
     },
